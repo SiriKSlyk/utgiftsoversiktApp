@@ -1,0 +1,17 @@
+@utgiftsoversikt_HostAddress = https://utgiftsoversikt.livelyriver-2c344957.northeurope.azurecontainerapps.io//
+
+POST {{utgiftsoversikt_HostAddress}}/user/getall
+Accept: application/json
+
+### Get All Expenses
+POST {{utgiftsoversikt_HostAddress}}/user/create
+Content-Type: application/json
+
+{
+  "id": "string",
+  "email": "test2@mail.com",
+  "first_name": "test2",
+  "last_name": "tes2t",
+  "is_admin": true,
+  "budgetId": ""
+}

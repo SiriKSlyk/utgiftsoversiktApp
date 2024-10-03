@@ -10,10 +10,7 @@ namespace utgiftsoversikt.Data
 
         public static bool IsLocal = true;
 
-        private static string GetUId(string email)
-        {
-            return Database.users.Find(u => u.Email.ToLower() == email.ToLower()).Id;
-        }
+
 
         private static Month CalculateExpense(List<Expense> exps)
         {
@@ -38,7 +35,7 @@ namespace utgiftsoversikt.Data
             }
             return new Month
             {
-                UserId = GetUId("test@mail.com"),
+                UserId = users.First().Id,
                 House = sums.GetValueOrDefault("house"),
                 Food = sums.GetValueOrDefault("food"),
                 Cloths = sums.GetValueOrDefault("cloths"),
@@ -55,7 +52,7 @@ namespace utgiftsoversikt.Data
 
         public static List<User> users = new List<User>()
         {
-            new User() { Email = "Test@mail.com", First_name = "Test", Last_name = "Test", BudgetId = "" },
+            new User() { Email = "Test@mail.com", First_name = "Ole", Last_name = "Olsen", BudgetId = "" },
             new User() { Email = "Test1@mail.com", First_name = "Test1", Last_name = "Test", BudgetId = "" },
             new User() { Email = "Test2@mail.com", First_name = "Test2", Last_name = "Test", BudgetId = "" },
             new User() { Email = "Test3@mail.com", First_name = "Test3", Last_name = "Test", BudgetId = "" },
@@ -64,21 +61,21 @@ namespace utgiftsoversikt.Data
 
         public static List<Expense> expenses = new List<Expense>()
         {
-            new Expense {UserId = GetUId("test@mail.com"), Category="House", Month="092024", Shop="-", Sum=1000, Description="Strøm"},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Debt", Month="091024", Shop="-", Sum=15000, Description="Huslån"},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="091824", Shop="Rema 1000", Sum=100},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="091724", Shop="Meny", Sum=80},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="091024", Shop="Coop Obs", Sum=500},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="092924", Shop="Kiwi", Sum=300},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="092324", Shop="Spar", Sum=200},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Etc", Month="092024", Shop="Netflix", Sum=129},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="092424", Shop="Kiwi", Sum=100},
-            new Expense {UserId = GetUId("test@mail.com"), Category="Food", Month="092824", Shop="Kiwi", Sum=100}
+            new Expense {UserId = users.First().Id, Date="2024-09-18",Category="House", Month="092024", Shop="-", Sum=1000, Description="Strøm"},
+            new Expense {UserId = users.First().Id, Date="2024-09-20",Category="Debt", Month="092024", Shop="-", Sum=15000, Description="Huslån"},
+            new Expense {UserId = users.First().Id, Date="2024-09-16",Category="Food", Month="092024", Shop="Rema 1000", Sum=100},
+            new Expense {UserId = users.First().Id, Date="2024-09-25",Category="Food", Month="092024", Shop="Meny", Sum=80},
+            new Expense {UserId = users.First().Id, Date="2024-09-10",Category="Food", Month="092024", Shop="Coop Obs", Sum=500},
+            new Expense {UserId = users.First().Id, Date="2024-09-15",Category="Food", Month="092024", Shop="Kiwi", Sum=300},
+            new Expense {UserId = users.First().Id, Date="2024-09-14",Category="Food", Month="092024", Shop="Spar", Sum=200},
+            new Expense {UserId = users.First().Id, Date="2024-09-15",Category="Etc", Month="092024", Shop="Netflix", Sum=129},
+            new Expense {UserId = users.First().Id, Date="2024-09-15",Category="Food", Month="092024", Shop="Kiwi", Sum=100},
+            new Expense {UserId = users.First().Id, Date="2024-09-01",Category="Food", Month="092024", Shop="Kiwi", Sum=100}
         };
 
         public static List<Budget> budgets = new List<Budget>()
         {
-            new Budget {UserId=GetUId("test@mail.com"), Debt=15000, Transport=1000, Etc=1000, Food=1000, House=1000, Saving=1000, Sum=6000}
+            new Budget {UserId = users.First().Id, Debt=15000, Transport=2000, Etc=1000, Food=2000, House=10000, Saving=10000, Sum=30000}
         };
 
         public static List<Month> months = new List<Month>()

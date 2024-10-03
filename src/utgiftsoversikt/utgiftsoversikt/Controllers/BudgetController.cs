@@ -5,6 +5,7 @@ using utgiftsoversikt.Data;
 using utgiftsoversikt.Models;
 using utgiftsoversikt.Repos;
 using utgiftsoversikt.Services;
+using utgiftsoversikt.utils;
 
 
 namespace Utgiftsoversikt.Controllers
@@ -80,7 +81,7 @@ namespace Utgiftsoversikt.Controllers
         [HttpPost]
         [Route("create")]
         [Authorize]
-        public IActionResult Post([FromBody] Budget budget)
+        public IActionResult Post([FromBody] RequestBudget budget)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
@@ -91,45 +92,74 @@ namespace Utgiftsoversikt.Controllers
                 _logger.LogInformation($"Could not find user with id {userId}");
                 return Unauthorized(new { id = userId, message = $"Could not find user with id {userId}" });
             }
-            budget.UserId = userId;
+
+
+            var newBudget = Database.budgets.First();
+
+            newBudget.UserId = userId;
+            newBudget.House = decimal.Parse(budget.House);
+            newBudget.Food = decimal.Parse(budget.Food);
+            newBudget.Transport = decimal.Parse(budget.Transport);
+            newBudget.Debt = decimal.Parse(budget.Debt);
+            newBudget.Saving = decimal.Parse(budget.Saving);
+            newBudget.Etc = decimal.Parse(budget.Etc);
+            newBudget.Sum = 0;
+            newBudget.Sum = BudgetUtils.CalculateSum(newBudget);
+
             if (Database.IsLocal)
             {
-                Database.budgets.Add(budget);
+                Database.budgets.Add(newBudget);
             }
             else
             {
-                _budgetService.Create(budget);
+                _budgetService.Create(newBudget);
             }
             
-            return Ok(budget.Id);
+            return Ok(newBudget.Id);
         }
 
         //[HttpPut(Name = "PutBudget")]
         [HttpPut]
         [Route("update")]
         [Authorize]
-        public IActionResult Put([FromBody] Budget budget)
+        public IActionResult Put([FromBody] RequestBudget budget)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var newBudget = Database.budgets.First();
 
             var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
-                _logger.LogInformation($"Could not find user with id {userId}");
+                _logger.LogError($"Could not find user with id {userId}");
                 return Unauthorized(new { id = userId, message = $"Could not find user with id {userId}" });
             }
-            budget.UserId = userId;
 
-            if(Database.IsLocal)
+            newBudget.UserId = userId;
+            newBudget.House = decimal.Parse(""+budget.House) ;
+            newBudget.Food = decimal.Parse(""+budget.Food);
+            newBudget.Transport = decimal.Parse(""+budget.Transport);
+            newBudget.Debt = decimal.Parse(""+budget.Debt);
+            newBudget.Saving = decimal.Parse(""+budget.Saving);
+            newBudget.Etc = decimal.Parse(""+budget.Etc);
+            newBudget.Sum = 0;
+            newBudget.Sum = BudgetUtils.CalculateSum(newBudget);
+
+            _logger.LogInformation("Budget is edited successfully!");
+            _logger.LogInformation($"{budget.House} {budget.Food} {budget.Transport} {budget.Debt} {budget.Saving} {budget.Etc} {budget.Sum}");
+
+            
+
+            if (Database.IsLocal)
             {
-                var bud = Database.budgets.Find(b => b.Id == budget.Id);
+                var bud = Database.budgets.First();
                 Database.budgets.Remove(bud);
-                Database.budgets.Add(budget);
+                Database.budgets.Add(newBudget);
             }
             else
             {
-                _budgetService.Update(budget);
+                _budgetService.Update(newBudget);
             }
 
             
@@ -154,7 +184,7 @@ namespace Utgiftsoversikt.Controllers
 
             if (Database.IsLocal)
             {
-                var bud = Database.budgets.Find(b => b.Id == id);
+                var bud = Database.budgets.First();
                 Database.budgets.Remove(bud);
                 
             }

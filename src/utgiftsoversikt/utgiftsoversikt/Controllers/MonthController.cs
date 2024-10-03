@@ -42,7 +42,7 @@ namespace utgiftsoversikt.Controllers
             }
 
             string mon = month.MonthYear;
-            var result = Database.IsLocal ? Database.months.Find(m => m.UserId == userId && m.MonthYear == month.MonthYear) : _monthService.GetByUserIdAndMonth(userId, mon);
+            var result = Database.IsLocal ? Database.months.First() : _monthService.GetByUserIdAndMonth(userId, mon);
             if (result == null)
                 return NotFound();
             if (month.UserId != userId)
@@ -71,7 +71,7 @@ namespace utgiftsoversikt.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                var result = Database.IsLocal ? Database.months.FindAll(m => m.UserId == userId) : _monthService.GetAll(userId);
+                var result = Database.IsLocal ? Database.months.FindAll(m => true) : _monthService.GetAll(userId);
                 if (result == null)
                     return NotFound();
                 return Ok(result);
@@ -127,7 +127,7 @@ namespace utgiftsoversikt.Controllers
 
             if (Database.IsLocal)
             {
-                var mon = Database.months.Find(m => m.Id == month.Id);
+                var mon = Database.months.First();
                 Database.months.Remove(mon);
                 Database.months.Add(month);
             }
@@ -164,7 +164,7 @@ namespace utgiftsoversikt.Controllers
             }
             if (Database.IsLocal)
             {
-                var mon = Database.months.Find(m => m.Id == id);
+                var mon = Database.months.First();
                 Database.months.Remove(mon);
             }
             else

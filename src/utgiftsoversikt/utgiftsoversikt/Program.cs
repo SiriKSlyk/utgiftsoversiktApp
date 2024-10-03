@@ -9,9 +9,13 @@ using utgiftsoversikt.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddAzureCosmosClient("db");
+/*builder.AddAzureCosmosClient("db"); OLD CODE
 
 builder.Services.AddDbContext<CosmosContext>(c => c.UseCosmos(builder.Configuration.GetConnectionString("cosmos"), "db"));
+*/
+
+builder.AddAzureCosmosClient("cosmos");
+builder.AddCosmosDbContext<CosmosContext>("cosmos", "db");
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.EntityFrameworkCore;
 using utgiftsoversikt.Data;
 using utgiftsoversikt.Models;
 
@@ -13,7 +14,7 @@ namespace utgiftsoversikt.Repos
         bool EmailExist(string email);
         bool DeleteUser(User user);
         bool UpdateUserByUser(User newUser);
-        User GetUserByEmail(string email);
+        Task<User> GetUserByEmail(string email);
         void RemoveTrace(User user);
         Task<bool> Write();
 
@@ -54,9 +55,12 @@ namespace utgiftsoversikt.Repos
         }
 
         // Endres senere til et unikt felt
-        public User GetUserByEmail(string name)
+        public async Task<User> GetUserByEmail(string name)
         {
+            /*using var client = new CosmosClientBuilder("AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;DisableServerCertificateValidation=true").WithLimitToEndpoint(true).Build();
+            await client.CreateDatabaseIfNotExistsAsync("cosmos");*/
             var user = _context.Users?.FirstOrDefault(u => u.Email.ToLower() == name.ToLower());
+            //var user = Database.users.First();
 
             return user;
         }

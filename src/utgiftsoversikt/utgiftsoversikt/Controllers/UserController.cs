@@ -2,8 +2,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using utgiftsoversikt.Models;
 using utgiftsoversikt.Services;
+using utgiftsoversikt.Data;
+using utgiftsoversikt.Controllers;
 
 
 namespace Utgiftsoversikt.Controllers
@@ -14,11 +17,21 @@ namespace Utgiftsoversikt.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IMonthService _monthService;
+        private readonly IBudgetService _budgetService;
+        private readonly IExpenseService _expenseService;
+
+        private readonly CosmosContext _context;
+
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IUserService userService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, IMonthService monthService, IBudgetService budgetService, IExpenseService expenseService, ILogger<UsersController> logger, CosmosContext context)
         {
             _userService = userService;
+            _monthService = monthService;
+            _budgetService = budgetService;
+            _expenseService = expenseService;
+            _context = context;
             _logger = logger;
         }
 
@@ -28,8 +41,8 @@ namespace Utgiftsoversikt.Controllers
         public ActionResult<User> Get()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            
-            var user = _userService.GetUserById(userId);
+
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -42,6 +55,7 @@ namespace Utgiftsoversikt.Controllers
             return Ok(new { usr = user, id = userId });
         }
 
+
         [HttpPost]
         [Route("getall")]
         [Authorize]
@@ -49,7 +63,7 @@ namespace Utgiftsoversikt.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -57,7 +71,7 @@ namespace Utgiftsoversikt.Controllers
                 return Unauthorized(new List<User>());
             }
 
-            var users = _userService.FindAllUsers();
+            var users = Database.IsLocal ? Database.users : _userService.FindAllUsers();
             return Ok(users);
         }
 
@@ -74,8 +88,15 @@ namespace Utgiftsoversikt.Controllers
                 Is_admin = false,
                 BudgetId = reqUser.BudgetId ?? ""
             };
-
-            var res = _userService.CreateUser(user);
+            if(Database.IsLocal)
+            {
+                Database.users.Add(user);
+            }
+            else
+            {
+                _userService.CreateUser(user);
+            }
+            
             return Ok(user);
         }
 
@@ -86,7 +107,7 @@ namespace Utgiftsoversikt.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -98,6 +119,13 @@ namespace Utgiftsoversikt.Controllers
             user.First_name = reqUser.First_name != "" && reqUser.First_name.ToLower() != "string" ? reqUser.First_name : user.First_name;
             user.Last_name = reqUser.Last_name != "" && reqUser.Last_name.ToLower() != "string" ? reqUser.Last_name : user.Last_name;
 
+            if(Database.IsLocal)
+            {
+                Database.users.Find(u => user.Id == u.Id);
+                return Ok();
+            }
+
+
             return _userService.UpdateUser(user) ? Ok() : BadRequest();
 
         }
@@ -107,22 +135,46 @@ namespace Utgiftsoversikt.Controllers
         [Authorize]
         public ActionResult Delete([FromBody] string id)
         {
-            var user = _userService.GetUserById(id);
-            if (user == null)
-                return NotFound();
+            
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == id) : _userService.GetUserById(id);
+
+            if(Database.IsLocal)
+            {
+                Database.users.Remove(user);
+            }
+            else
+            {
+                _userService.DeleteUser(user);
+            }
 
             
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var authUser = _userService.GetUserById(userId);
-
-            if (authUser == null || authUser.Id != userId || user.Id != userId)
-            {
-                _logger.LogInformation($"Could not find user with id {userId}");
-                return Unauthorized(new List<User>());
-            }
-            _userService.DeleteUser(user);
             return NoContent();
+        }
+
+        [HttpPost]//(Name = "GetUsers")]
+        [Route("add")]
+        public async Task<IActionResult> Add()
+        {
+            if (Database.IsLocal)
+            {
+                return BadRequest();
+            }
+            var users = Database.users;
+            var expenses = Database.expenses;
+            var budgets = Database.budgets;
+            var months = Database.months;
+
+            _context.Users?.AddRange(users);
+            _context.Expenses?.AddRange(expenses);
+            _context.Month?.AddRange(months);
+            _context.Budget?.AddRange(budgets);
+
+            await _context.SaveChangesAsync();
+
+            
+            
+            return Ok();
+
         }
 
     }

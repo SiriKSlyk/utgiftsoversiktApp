@@ -35,9 +35,8 @@ namespace utgiftsoversikt.Services
 
         public bool Create(Expense expense)
         {
-           
+
             // add logic to check if expense was created in database
-            
 
             var month = _monthRepo.GetByUserIdAndMonth(expense.UserId, expense.Month);
             var newMonth = MonthUtils.AddToMonth(expense, month);
@@ -70,7 +69,7 @@ namespace utgiftsoversikt.Services
 
         public List<Expense> GetAllByUserIdAndMonth(string userId, string month)
         {
-            return Database.expenses;//_expenseRepo.GetAll(userId, month);
+            return _expenseRepo.GetAll(userId, month);
         }
 
         public Expense GetById(string id)

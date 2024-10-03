@@ -50,7 +50,7 @@ namespace utgiftsoversikt.Services
 
         public User GetUserByEmail(string email)
         {
-            return _userRepo.GetUserByEmail(email);
+            return _userRepo.GetUserByEmail(email).Result;
         }
 
         public bool UpdateUser(User user)

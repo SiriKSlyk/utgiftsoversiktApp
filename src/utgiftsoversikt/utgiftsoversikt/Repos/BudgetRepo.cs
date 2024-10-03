@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using utgiftsoversikt.Data;
 using utgiftsoversikt.Models;
+using utgiftsoversikt.Data;
 
 namespace utgiftsoversikt.Repos
 {
@@ -39,6 +40,7 @@ namespace utgiftsoversikt.Repos
 
         public bool Create(Budget budget)
         {
+            
             _context.Budget?.Add(budget);
             return Write().Result;
         }

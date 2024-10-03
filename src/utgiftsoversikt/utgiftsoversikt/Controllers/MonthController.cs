@@ -7,6 +7,7 @@ using utgiftsoversikt.Models;
 using utgiftsoversikt.Services;
 using Database = utgiftsoversikt.Data.Database;
 
+
 namespace utgiftsoversikt.Controllers
 {
     [ApiController]
@@ -28,11 +29,11 @@ namespace utgiftsoversikt.Controllers
         [HttpPost]
         [Route("get")]
         [Authorize]
-        public ActionResult<Month> Get(/*[FromBody] Month month*/)
+        public ActionResult<Month> Get([FromBody] Month month)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            /*var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -41,15 +42,15 @@ namespace utgiftsoversikt.Controllers
             }
 
             string mon = month.MonthYear;
-            var result = _monthService.GetByUserIdAndMonth(userId, mon);
+            var result = Database.IsLocal ? Database.months.Find(m => m.UserId == userId && m.MonthYear == month.MonthYear) : _monthService.GetByUserIdAndMonth(userId, mon);
             if (result == null)
                 return NotFound();
             if (month.UserId != userId)
             {
                 _logger.LogInformation($"Could not find user with id {userId}");
                 return Unauthorized(new { id = userId, message = $"Could not find user with id {userId}" });
-            }*/
-            var result = Database.months.First();
+            }
+
             return Ok(result);
         }
 
@@ -60,7 +61,7 @@ namespace utgiftsoversikt.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -70,7 +71,7 @@ namespace utgiftsoversikt.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                var result = _monthService.GetAll(userId);
+                var result = Database.IsLocal ? Database.months.FindAll(m => m.UserId == userId) : _monthService.GetAll(userId);
                 if (result == null)
                     return NotFound();
                 return Ok(result);
@@ -86,7 +87,7 @@ namespace utgiftsoversikt.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -95,7 +96,15 @@ namespace utgiftsoversikt.Controllers
             }
             month.UserId = userId;
             month.Id = Guid.NewGuid().ToString();
-            _monthService.Create(month);
+            
+            if (Database.IsLocal)
+            {
+                Database.months.Add(month);
+            }
+            else
+            {
+                _monthService.Create(month);
+            }
             return Ok(month.Id);
         }
 
@@ -107,7 +116,7 @@ namespace utgiftsoversikt.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -115,7 +124,19 @@ namespace utgiftsoversikt.Controllers
                 return Unauthorized(new { id = userId, message = $"Could not find user with id {userId}" });
             }
             month.UserId = userId;
-            _monthService.Update(month);
+
+            if (Database.IsLocal)
+            {
+                var mon = Database.months.Find(m => m.Id == month.Id);
+                Database.months.Remove(mon);
+                Database.months.Add(month);
+            }
+            else
+            {
+                _monthService.Update(month);
+            }
+
+            
             return Ok(month.Id);
         }
 
@@ -127,7 +148,7 @@ namespace utgiftsoversikt.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = _userService.GetUserById(userId);
+            var user = Database.IsLocal ? Database.users.Find(u => u.Id == userId) : _userService.GetUserById(userId);
 
             if (user == null || user.Id != userId)
             {
@@ -141,7 +162,15 @@ namespace utgiftsoversikt.Controllers
                 _logger.LogInformation($"Could not find user with id {userId}");
                 return Unauthorized(new { id = userId, message = $"Could not find user with id {userId}" });
             }
-            _monthService.Delete(month);
+            if (Database.IsLocal)
+            {
+                var mon = Database.months.Find(m => m.Id == id);
+                Database.months.Remove(mon);
+            }
+            else
+            {
+                _monthService.Delete(month);
+            }
             return Ok(month.Id);
         }
     }

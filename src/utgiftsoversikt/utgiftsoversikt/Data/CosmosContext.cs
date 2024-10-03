@@ -11,6 +11,7 @@ public class CosmosContext(DbContextOptions options) : DbContext(options)
     public DbSet<Budget>? Budget { get; set; }
 
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()

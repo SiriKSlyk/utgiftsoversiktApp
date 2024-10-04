@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.Cosmos.Fluent;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using utgiftsoversikt.Data;
 using utgiftsoversikt.Models;
 
@@ -19,11 +18,9 @@ namespace utgiftsoversikt.Repos
         Task<bool> Write();
 
     }
-    
-    
+
     public class UserRepo: IUserRepo
     {
-
         private readonly CosmosContext _context;
 
         public UserRepo(CosmosContext context)
@@ -34,14 +31,12 @@ namespace utgiftsoversikt.Repos
         // Creates and give user a new uniqe id
         public bool AddUser(User user)
         {
-            
             _context.Users.Add(user);
             return Write().Result;
         }
 
         public List<User> GetAllUsers()
         {
-
             var users = _context.Users.ToList();
             return users;
         }
@@ -49,30 +44,21 @@ namespace utgiftsoversikt.Repos
         public User GetUserById(string id)
         {
             var user = _context.Users?.FirstOrDefault(u => u.Id == id);
-
             return user;
-
         }
 
-        // Endres senere til et unikt felt
         public async Task<User> GetUserByEmail(string name)
         {
-            /*using var client = new CosmosClientBuilder("AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;DisableServerCertificateValidation=true").WithLimitToEndpoint(true).Build();
-            await client.CreateDatabaseIfNotExistsAsync("cosmos");*/
             var user = _context.Users?.FirstOrDefault(u => u.Email.ToLower() == name.ToLower());
-            //var user = Database.users.First();
-
             return user;
         }
 
         public bool UpdateUserByUser(User user)
         {
-
             RemoveTrace(user);
 
             _context.Users?.Update(user);
             return Write().Result;
-
         }
 
         public bool DeleteUser(User user)
@@ -86,18 +72,15 @@ namespace utgiftsoversikt.Repos
         public bool EmailExist(string email)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
-
             return user != null;
-
         }
 
         public bool IdExist(string id)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == id);
-
             return user != null;
-
         }
+        // removes trace so the object can be modified in database
         public void RemoveTrace(User user)
         {
             var trackedUser = _context.ChangeTracker.Entries<User>()
@@ -109,6 +92,7 @@ namespace utgiftsoversikt.Repos
                 _context.Entry(trackedUser.Entity).State = EntityState.Detached;
             }
         }
+        // Saves all changes to the database
         public async Task<bool> Write()
         {
             return await _context.SaveChangesAsync() > 0;

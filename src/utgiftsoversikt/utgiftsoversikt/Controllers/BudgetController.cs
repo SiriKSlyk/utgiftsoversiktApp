@@ -28,7 +28,10 @@ namespace Utgiftsoversikt.Controllers
             _logger = logger;
         }
 
-        //[HttpGet("{budgetId}", Name = "GetBudget")]
+        /*
+         * Autorizes the user and uses the budgetId given in payload to return the correct budget if user is auth
+         * 
+         */
         [HttpPost]
         [Route("get")]
         [Authorize]
@@ -54,9 +57,10 @@ namespace Utgiftsoversikt.Controllers
 
             return Ok(budget);
         }
-
-
-        //[HttpGet("{userId}, {test}", Name = "GetBudgets")]
+        /*
+         * Checks if the user is authorized
+         * Returnes a list of all the budgets the user ownes
+         */
         [HttpPost]
         [Route("getall")]
         [Authorize]
@@ -77,7 +81,10 @@ namespace Utgiftsoversikt.Controllers
             return Ok(budgets);
         }
 
-        //[HttpPost("{userId}", Name = "PostBudget")]
+        /*
+         * Checks if the user is authorized
+         * Creates a new budget that this user ownes
+         */
         [HttpPost]
         [Route("create")]
         [Authorize]
@@ -118,7 +125,10 @@ namespace Utgiftsoversikt.Controllers
             return Ok(newBudget.Id);
         }
 
-        //[HttpPut(Name = "PutBudget")]
+        /*
+         * Checks if the user is authorized
+         * Updates the  budget if the user is the owner
+         */
         [HttpPut]
         [Route("update")]
         [Authorize]
@@ -147,9 +157,6 @@ namespace Utgiftsoversikt.Controllers
             newBudget.Sum = BudgetUtils.CalculateSum(newBudget);
 
             _logger.LogInformation("Budget is edited successfully!");
-            _logger.LogInformation($"{budget.House} {budget.Food} {budget.Transport} {budget.Debt} {budget.Saving} {budget.Etc} {budget.Sum}");
-
-            
 
             if (Database.IsLocal)
             {
@@ -165,8 +172,10 @@ namespace Utgiftsoversikt.Controllers
             
             return Ok();
         }
-
-        //[HttpDelete(Name = "DeleteBudget")]
+        /*
+         * Checks if the user is authorized
+         * Deletes the budget with this id if the user is the owner
+         */
         [HttpDelete]
         [Route("delete")]
         [Authorize]

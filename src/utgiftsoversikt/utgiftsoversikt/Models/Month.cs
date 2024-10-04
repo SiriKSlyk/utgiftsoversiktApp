@@ -4,7 +4,7 @@
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string UserId { get; set; }
-        public string MonthYear { get; set; } // MMYYYY
+        public string MonthYear { get; set; }
         public string BudgetId { get; set; }
         public decimal House { get; set; } = 0M;
         public decimal Food { get; set; } = 0M;

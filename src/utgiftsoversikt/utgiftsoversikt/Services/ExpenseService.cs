@@ -35,13 +35,11 @@ namespace utgiftsoversikt.Services
 
         public bool Create(Expense expense)
         {
-
-            // add logic to check if expense was created in database
-
             var month = _monthRepo.GetByUserIdAndMonth(expense.UserId, expense.Month);
             var newMonth = MonthUtils.AddToMonth(expense, month);
             if (month == null)
                 return false;
+
             var res1 = _expenseRepo.Create(expense);
             var res2 = _monthRepo.Update(newMonth);
 
@@ -60,6 +58,7 @@ namespace utgiftsoversikt.Services
                 var month = _monthRepo.GetByUserIdAndMonth(expense.UserId, expense.Month);
                 var newMonth = MonthUtils.SubFromMonth(expense, month);
                 var result = _monthRepo.Update(newMonth);
+                
                 // Change the sum of the month
                 return _expenseRepo.Write().Result && _monthRepo.Write().Result;
             }
@@ -77,38 +76,22 @@ namespace utgiftsoversikt.Services
             return _expenseRepo.GetById(id);
         }
 
-        //public bool Update(Expense expense)
-        //{
-        //    var exp = GetById(expense.Id); // Get old Expense before modifying database
-
-        //    _expenseRepo.RemoveTrace(exp);
-
-        //    var monthIdOld = exp.Month; 
-        //    var oldMonth = _monthRepo.GetByUserIdAndMonth(exp.UserId, exp.Month); // get old month with expenses to be updated
-        //    exp = expense;
-        //    var newMonth = oldMonth; // The month to be updated
-        //    if (monthIdOld != exp.Month) // If the expense has another month then before, we change the month to be updated
-        //        newMonth = _monthRepo.GetByUserIdAndMonth(exp.UserId, exp.Month);
-
-        //    var monthUpdate = MonthUtils.EditMonth(exp, expense, oldMonth, newMonth);
-        //    var resExp = _expenseRepo.Update(exp);
-        //    var resMonth = _monthRepo.Update(monthUpdate);
-
-
-        //    return _monthRepo.Write().Result && _expenseRepo.Write().Result;
-        //}
-
+        /*
+         * Updates a expense, and the month this expence is realted
+         */
         public bool Update(Expense expense)
         {
-            var oldExp = GetById(expense.Id); // Getting the original expense before updated values
+            // Getting the original expense before updated values
+            var oldExp = GetById(expense.Id);
+
             _expenseRepo.RemoveTrace(oldExp);
 
             var oldMonth = _monthRepo.GetByUserIdAndMonth(oldExp.UserId, oldExp.Month);
             var newMonth = _monthRepo.GetByUserIdAndMonth(oldExp.UserId, expense.Month);
 
-
-            MonthUtils.SubFromMonth(oldExp, oldMonth);
-            MonthUtils.AddToMonth(expense, newMonth);
+            
+            MonthUtils.SubFromMonth(oldExp, oldMonth); //Subtract the old sum from the expense
+            MonthUtils.AddToMonth(expense, newMonth); // Adds the updated sum to the month
 
             _expenseRepo.Update(expense);
 

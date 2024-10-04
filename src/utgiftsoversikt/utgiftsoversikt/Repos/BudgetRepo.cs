@@ -19,7 +19,6 @@ namespace utgiftsoversikt.Repos
 
     public class BudgetRepo : IBudgetRepo
     {
-
         private readonly CosmosContext _context;
 
         public BudgetRepo(CosmosContext context)
@@ -33,14 +32,12 @@ namespace utgiftsoversikt.Repos
         }
 
         public Budget GetById(string id)
-        {
-            // User id for future authorication: Do this user own this expense
+        { 
             return _context.Budget?.FirstOrDefault(e => e.Id == id);
         }
 
         public bool Create(Budget budget)
         {
-            
             _context.Budget?.Add(budget);
             return Write().Result;
         }

@@ -2,8 +2,6 @@
 {
     public class RequestBudget
     {
-        //public string Id { get; set; }
-        //public string UserId { get; set; }
         public string House { get; set; }
         public string Food { get; set; }
         public string Transport { get; set; }

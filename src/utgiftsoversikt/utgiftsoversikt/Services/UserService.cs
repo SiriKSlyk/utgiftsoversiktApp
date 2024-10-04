@@ -34,8 +34,8 @@ namespace utgiftsoversikt.Services
 
             user = new User() { Id = Guid.NewGuid().ToString(), First_name = user.First_name, Last_name = user.Last_name, Email = user.Email, Is_admin = false };
             _userRepo.AddUser(user);
-            return _userRepo.Write().Result;
 
+            return _userRepo.Write().Result;
         }
 
         public List<User> FindAllUsers()
@@ -57,10 +57,11 @@ namespace utgiftsoversikt.Services
         {
             var oldUser = _userRepo.GetUserById(user.Id);
 
-            // Forcing values not to change
+            // Forcing values not to change, even if user tries to
             user.Id = oldUser.Id;
             user.Is_admin = oldUser.Is_admin;
             user.BudgetId = oldUser.BudgetId;
+
             _userRepo.UpdateUserByUser(user);
 
             return _userRepo.Write().Result;
@@ -81,7 +82,6 @@ namespace utgiftsoversikt.Services
         }
         public bool EmailExist(string email)
         {
-
             return _userRepo.EmailExist(email);
 
         }

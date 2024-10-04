@@ -11,8 +11,6 @@ namespace utgiftsoversikt.Services
         Budget GetById(string id);
         bool Delete(Budget budget);
         bool Update(Budget budget);
-
-
     }
     public class BudgetService : IBudgetService
     {
@@ -20,7 +18,6 @@ namespace utgiftsoversikt.Services
 
         public BudgetService(IBudgetRepo budgetRepo)
         {
-            
             _budgetRepo = budgetRepo;
         }
 
@@ -28,6 +25,7 @@ namespace utgiftsoversikt.Services
         {
             budget.Id = Guid.NewGuid().ToString();
             _budgetRepo.Create(budget);
+
             return _budgetRepo.Write().Result;
         }
 
@@ -51,6 +49,7 @@ namespace utgiftsoversikt.Services
         {
             _budgetRepo.RemoveTrace(budget);
             _budgetRepo.Update(budget);
+
             return _budgetRepo.Write().Result;
         }
 

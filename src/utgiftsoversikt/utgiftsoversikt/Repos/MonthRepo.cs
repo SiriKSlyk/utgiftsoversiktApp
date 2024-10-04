@@ -14,14 +14,12 @@ namespace utgiftsoversikt.Repos
         bool Update(Month budget);
         bool Delete(Month budget);
         void RemoveTrace(Month month);
-
         Task<bool> Write();
 
     }
 
     public class MonthRepo : IMonthRepo
     {
-
         private readonly CosmosContext _context;
 
         public MonthRepo(CosmosContext context)
@@ -41,7 +39,6 @@ namespace utgiftsoversikt.Repos
 
         public Month GetByUserIdAndMonth(string userId, string month)
         {
-
             return _context.Month?.FirstOrDefault(m => m.UserId == userId && m.MonthYear == month);
         }
 
@@ -60,13 +57,11 @@ namespace utgiftsoversikt.Repos
 
         public bool Update(Month month)
         {
-
             _context.Month?.Update(month);
             return true;
         }
         public bool Delete(Month month)
         {
-
             _context.Month?.Remove(month);
             return true;
         }

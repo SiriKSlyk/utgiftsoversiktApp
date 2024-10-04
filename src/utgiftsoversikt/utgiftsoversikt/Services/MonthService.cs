@@ -47,6 +47,7 @@ namespace utgiftsoversikt.Services
         public List<Month> GetAllInYear(string userId, string year)
         {
             int yearInt = int.Parse(year);
+           // Checks if year is valid
             if (1950 <= yearInt && yearInt <= 2024) {
                 return _monthRepo.GetAllInYear(userId, year);
             }
@@ -57,6 +58,7 @@ namespace utgiftsoversikt.Services
         {
             _monthRepo.RemoveTrace(month);
             _monthRepo.Update(month);
+
             return _monthRepo.Write().Result;
         }
         public bool Delete(Month month)

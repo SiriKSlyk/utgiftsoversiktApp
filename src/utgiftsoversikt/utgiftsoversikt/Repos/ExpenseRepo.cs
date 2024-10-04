@@ -16,10 +16,8 @@ namespace utgiftsoversikt.Repos
         Task<bool> Write();
     }
 
-
     public class ExpenseRepo : IExpenseRepo
     {
-
         private readonly CosmosContext _context;
 
         public ExpenseRepo(CosmosContext context)
@@ -34,7 +32,6 @@ namespace utgiftsoversikt.Repos
 
         public Expense GetById(string id)
         {
-            // User id for future authorication: Do this user own this expense
             return _context.Expenses?.FirstOrDefault(e => e.Id == id);
         }
 
@@ -48,14 +45,11 @@ namespace utgiftsoversikt.Repos
         public bool Update(Expense expense)
         {
             _context.Expenses?.Update(expense);
-
             return true;
         }
         public bool Delete(Expense expense)
         {
-
             _context?.Expenses?.Remove(expense);
-
             return true;
         }
 
